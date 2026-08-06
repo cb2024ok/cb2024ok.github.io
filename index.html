@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lee ChangBai | Physical AX & Robotics Engineer</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            bg: '#0d1117',
+                            card: '#161b22',
+                            border: '#30363d',
+                            accent: '#238636',
+                            text: '#c9d1d9',
+                            heading: '#f0f6fc'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="bg-brand-bg text-brand-text font-sans antialiased min-h-screen flex flex-col justify-between">
+
+    <!-- Header / Hero Section -->
+    <header class="max-w-4xl mx-auto px-6 pt-16 pb-12 w-full">
+        <div class="flex flex-col md:flex-row items-center justify-between gap-8">
+            <div>
+                <div
+                    class="inline-block px-3 py-1 bg-green-900/40 text-green-400 text-xs font-semibold rounded-full border border-green-700/50 mb-4">
+                    <i class="fa-solid fa-circle text-[8px] mr-1.5 animate-pulse">String-Pulling Hardware & Systems</i>
+                </div>
+                <h1 class="text-4xl md:text-5xl font-extrabold text-brand-heading tracking-tight mb-3">
+                    Lee ChangBai
+                </h1>
+                <p class="text-lg text-gray-400 font-medium mb-6">
+                    Software Engineer & Robotics Hardware Architect
+                </p>
+                <div class="flex items-center gap-4">
+                    <a href="https://github.com/cb2024ok" target="_blank"
+                        class="bg-brand-card border border-brand-border hover:border-gray-500 text-brand-heading px-4 py-2 rounded-lg text-sm font-medium transition flex items-center gap-2">
+                        <i class="fa-brands fa-github text-base"></i> GitHub
+                    </a>
+                    <a href="mailto:ar88plus@naver.com"
+                        class="bg-brand-card border border-brand-border hover:border-gray-500 text-brand-heading px-4 py-2 rounded-lg text-sm font-medium transition flex items-center gap-2">
+                        <i class="fa-regular fa-envelope text-base"></i> Contact
+                    </a>
+                </div>
+            </div>
+            <!-- Profile Avatar Placeholder -->
+            <div class="relative group">
+                <div
+                    class="absolute -inset-0.5 bg-gradient-to-r from-green-500 to-emerald-700 rounded-full blur opacity-30 group-hover:opacity-75 transition duration-500">
+                </div>
+                <img src="https://github.com/cb2024ok.png" alt="Profile"
+                    class="relative rounded-full w-32 h-32 md:w-40 md:y-40 object-cover border-2 border-brand-border">
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-4xl mx-auto px-6 w-full flex-1">
+
+        <!-- About Section -->
+        <section class="mb-12">
+            <h2
+                class="text-xl font-bold text-brand-heading mb-4 border-b border-brand-border pb-2 flex items-center gap-2">
+                <i class="fa-solid fa-code text-green-500"></i> About Me
+            </h2>
+            <p class="text-gray-300 leading-relaxed">
+                Building robust embedded systems and hardware-software architectures. Focusing on high-stability
+                robotics, MCU-level firmware optimization, and Next-Gen Physical AX platforms.
+            </p>
+        </section>
+
+        <!-- Tech Stack -->
+        <section class="mb-12">
+            <h2
+                class="text-xl font-bold text-brand-heading mb-4 border-b border-brand-border pb-2 flex items-center gap-2">
+                <i class="fa-solid fa-layer-group text-green-500"></i> Tech Stack
+            </h2>
+            <div class="flex flex-wrap gap-2">
+                <span
+                    class="px-3 py-1 bg-brand-card border border-brand-border text-sm rounded-md font-mono text-emerald-400">Rust</span>
+                <span
+                    class="px-3 py-1 bg-brand-card border border-brand-border text-sm rounded-md font-mono text-gray-300">ESP32
+                    (P4 / S3 / C6)</span>
+                <span
+                    class="px-3 py-1 bg-brand-card border border-brand-border text-sm rounded-md font-mono text-gray-300">Embedded
+                    HAL</span>
+                <span
+                    class="px-3 py-1 bg-brand-card border border-brand-border text-sm rounded-md font-mono text-gray-300">Robotics
+                    Kinematics</span>
+                <span
+                    class="px-3 py-1 bg-brand-card border border-brand-border text-sm rounded-md font-mono text-gray-300">System
+                    Architecture</span>
+            </div>
+        </section>
+
+        <!-- Featured Projects -->
+        <section class="mb-16">
+            <h2
+                class="text-xl font-bold text-brand-heading mb-6 border-b border-brand-border pb-2 flex items-center gap-2">
+                <i class="fa-solid fa-cubes text-green-500"></i> Featured Projects
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+                <!-- RedAlert Card -->
+                <a href="https://github.com/cb2024ok/RedAlert" target="_blank"
+                    class="block p-5 bg-brand-card border border-brand-border rounded-xl hover:border-green-600/60 transition group">
+                    <div class="flex items-center justify-between mb-2">
+                        <h3
+                            class="font-bold text-brand-heading group-hover:text-green-400 transition flex items-center gap-2">
+                            <i class="fa-regular fa-folder text-gray-400"></i> RedAlert
+                        </h3>
+                        <i
+                            class="fa-solid fa-arrow-up-right-from-square text-xs text-gray-500 group-hover:text-green-400 transition"></i>
+                    </div>
+                    <p class="text-xs text-gray-400 mb-4 line-clamp-2">
+                        The Next Physical AX Platform. Built for stability and direct hardware-to-AI channel
+                        integrations.
+                    </p>
+                    <div class="flex items-center gap-2 text-xs font-mono text-emerald-400">
+                        <span class="w-2.5 h-2.5 rounded-full bg-orange-600 inline-block"></span> Rust
+                    </div>
+                </a>
+
+                <!-- Placeholder Project Card -->
+                <div class="p-5 bg-brand-card border border-brand-border rounded-xl opacity-75">
+                    <div class="flex items-center justify-between mb-2">
+                        <h3 class="font-bold text-brand-heading flex items-center gap-2">
+                            <i class="fa-regular fa-folder text-gray-400"></i> Autonomous Kinematics
+                        </h3>
+                    </div>
+                    <p class="text-xs text-gray-400 mb-4">
+                        Custom multi-axis motor kinematics & mechanical geometric trajectory systems.
+                    </p>
+                    <div class="flex items-center gap-2 text-xs font-mono text-gray-400">
+                        <span class="w-2.5 h-2.5 rounded-full bg-blue-500 inline-block"></span> Embedded / C++
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-brand-border py-8 text-center text-xs text-gray-500">
+        <p>© 2026 Lee ChangBai. Built with GitHub Pages & Tailwind CSS.</p>
+    </footer>
+
+</body>
+
+</html>
