@@ -1,373 +1,607 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>제빵 원가 및 마진 계산기</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <style>
-    body { -webkit-tap-highlight-color: transparent; }
-    input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-    input[type=number] { -moz-appearance: textfield; }
-  </style>
-</head>
-<body class="bg-slate-100 text-slate-800 min-h-screen pb-12 select-none">
-
-  <!-- Header -->
-  <header class="bg-amber-600 text-white p-4 shadow-md sticky top-0 z-50">
-    <div class="max-w-2xl mx-auto flex justify-between items-center">
-      <h1 class="text-xl font-bold flex items-center gap-2">
-        <i class="fa-solid font-sharp fa-wheat-awn"></i> 제빵 원가 계산기
-      </h1>
-      <span class="text-xs bg-amber-700 px-2.5 py-1 rounded-full">Mobile / Tablet</span>
-    </div>
-  </header>
-
-  <!-- Navigation Tabs -->
-  <nav class="max-w-2xl mx-auto bg-white border-b border-slate-200 flex sticky top-[57px] z-40 shadow-sm">
-    <button id="tab-calculator" onclick="switchTab('calculator')" class="flex-1 py-3 text-center font-bold text-amber-600 border-b-2 border-amber-600 flex justify-center items-center gap-2">
-      <i class="fa-solid fa-calculator"></i> 레시피 원가계산
-    </button>
-    <button id="tab-ingredients" onclick="switchTab('ingredients')" class="flex-1 py-3 text-center font-semibold text-slate-500 border-b-2 border-transparent hover:text-slate-700 flex justify-center items-center gap-2">
-      <i class="fa-solid fa-list-check"></i> 원재료 단가표 (<span id="ing-count">0</span>)
-    </button>
-  </nav>
-
-  <main class="max-w-2xl mx-auto p-4 space-y-6">
-
-<!-- TAB 1: CALCULATOR SECTION -->
-<section id="section-calculator" class="space-y-4">
-  
-  <!-- Recipe Overview Card -->
-  <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 space-y-4">
-    <div>
-      <label class="block text-xs font-bold text-slate-500 mb-1">제품 / 레시피 명</label>
-      <input type="text" id="recipe-name" placeholder="예: 소금빵 (10개 분량)" value="기본 식빵 1배치" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-3 text-lg font-bold text-slate-800 focus:ring-2 focus:ring-amber-500 focus:outline-none">
-    </div>
-
-    <div class="grid grid-cols-2 gap-3">
-      <div>
-        <label class="block text-xs font-bold text-slate-500 mb-1">총 완성 개수 (EA)</label>
-        <input type="number" id="recipe-yield" value="10" oninput="calculateTotal()" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-3 text-base font-bold text-slate-800 focus:ring-2 focus:ring-amber-500 focus:outline-none">
-      </div>
-      <div>
-        <label class="block text-xs font-bold text-slate-500 mb-1">목표 판매가 (개당 / 원)</label>
-        <input type="number" id="recipe-price" value="3500" oninput="calculateTotal()" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-3 text-base font-bold text-amber-700 focus:ring-2 focus:ring-amber-500 focus:outline-none">
-      </div>
-    </div>
-  </div>
-
-  <!-- Ingredient Usage List -->
-  <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 space-y-4">
-    <div class="flex justify-between items-center">
-      <h2 class="font-bold text-slate-800 text-base flex items-center gap-2">
-        <i class="fa-solid fa-bowl-food text-amber-600"></i> 배합표 / 재료 투입
-      </h2>
-      <button onclick="addRecipeItem()" class="bg-amber-100 text-amber-700 font-bold text-sm px-3 py-1.5 rounded-lg active:bg-amber-200 flex items-center gap-1">
-        <i class="fa-solid fa-plus"></i> 재료 추가
-      </button>
-    </div>
-
-    <div id="recipe-items-container" class="space-y-3">
-      <!-- Items inserted dynamically -->
-    </div>
-  </div>
-
-  <!-- Result Summary Box -->
-  <div class="bg-gradient-to-br from-slate-900 to-slate-800 text-white p-5 rounded-2xl shadow-lg space-y-4">
-    <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wider border-b border-slate-700 pb-2">원가 산출 결과</h3>
-    
-    <div class="grid grid-cols-2 gap-4">
-      <div>
-        <p class="text-xs text-slate-400">총 재료비 (1배치)</p>
-        <p id="res-total-cost" class="text-2xl font-black text-amber-400">0원</p>
-      </div>
-      <div>
-        <p class="text-xs text-slate-400">개당 재료원가</p>
-        <p id="res-unit-cost" class="text-2xl font-black text-white">0원</p>
-      </div>
-    </div>
-
-    <div class="pt-3 border-t border-slate-700 grid grid-cols-2 gap-4 items-center">
-      <div>
-        <p class="text-xs text-slate-400">원가율 (재료비/판매가)</p>
-        <p id="res-cost-ratio" class="text-xl font-bold text-emerald-400">0 %</p>
-      </div>
-      <div>
-        <p class="text-xs text-slate-400">개당 예상 마진</p>
-        <p id="res-unit-margin" class="text-xl font-bold text-sky-400">0원</p>
-      </div>
-    </div>
-  </div>
-
-</section>
-
-<!-- TAB 2: INGREDIENTS MASTER SECTION -->
-<section id="section-ingredients" class="space-y-4 hidden">
-  
-  <!-- Add New Ingredient Card -->
-  <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 space-y-3">
-    <h2 class="font-bold text-slate-800 text-base flex items-center gap-2">
-      <i class="fa-solid fa-plus-circle text-amber-600"></i> 새 원재료 등록
-    </h2>
-    <div class="grid grid-cols-2 gap-2">
-      <input type="text" id="new-ing-name" placeholder="재료명 (예: 강력분)" class="col-span-2 bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-amber-500 focus:outline-none">
-      <div>
-        <label class="block text-[10px] font-bold text-slate-400">구매 용량/수량</label>
-        <input type="number" id="new-ing-qty" placeholder="예: 20000" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-sm focus:outline-none">
-      </div>
-      <div>
-        <label class="block text-[10px] font-bold text-slate-400">단위</label>
-        <select id="new-ing-unit" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-sm focus:outline-none">
-          <option value="g">그램 (g)</option>
-          <option value="kg">킬로그램 (kg)</option>
-          <option value="ml">밀리리터 (ml)</option>
-          <option value="ea">개 (EA)</option>
-        </select>
-      </div>
-      <div class="col-span-2">
-        <label class="block text-[10px] font-bold text-slate-400">구매 가격 (원)</label>
-        <input type="number" id="new-ing-price" placeholder="예: 28000" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-sm focus:outline-none">
-      </div>
-    </div>
-    <button onclick="saveIngredient()" class="w-full bg-amber-600 text-white font-bold py-3 rounded-xl active:bg-amber-700 shadow-sm">
-      단가표에 저장하기
-    </button>
-  </div>
-
-  <!-- Ingredient Master List -->
-  <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 space-y-3">
-    <h2 class="font-bold text-slate-800 text-base">등록된 원재료 목록</h2>
-    <div id="ingredients-list" class="divide-y divide-slate-100">
-      <!-- Dynamically populated -->
-    </div>
-  </div>
-
-</section>
-  </main>
-
-  <script>
-    // Initial Default Master Ingredients
-    const defaultIngredients = [
-      { id: '1', name: '강력분', qty: 20000, unit: 'g', price: 28000 },
-      { id: '2', name: '박력분', qty: 20000, unit: 'g', price: 26000 },
-      { id: '3', name: '무염버터', qty: 450, unit: 'g', price: 8500 },
-      { id: '4', name: '설탕', qty: 1000, unit: 'g', price: 2200 },
-      { id: '5', name: '소금', qty: 1000, unit: 'g', price: 1500 },
-      { id: '6', name: '드라이 이스트', qty: 500, unit: 'g', price: 6500 },
-      { id: '7', name: '우유', qty: 1000, unit: 'ml', price: 2900 },
-      { id: '8', name: '계란', qty: 10, unit: 'ea', price: 3500 }
-    ];
-
-    let ingredients = JSON.parse(localStorage.getItem('bakery_ingredients')) || defaultIngredients;
-    let recipeItems = [
-      { ingId: '1', usage: 500 },
-      { ingId: '3', usage: 40 },
-      { ingId: '4', usage: 30 },
-      { ingId: '5', usage: 9 },
-      { ingId: '6', usage: 6 },
-      { ingId: '7', usage: 320 }
-    ];
-
-    // Get price per base unit (g, ml, ea)
-    function getUnitPrice(ing) {
-      let totalBase = ing.qty;
-      if (ing.unit = 'kg') totalBase = ing.qty * 1000;
-      return totalBase > 0 ? ing.price / totalBase : 0;
-    }
-
-    function saveIngredientsToStorage() {
-      localStorage.setItem('bakery_ingredients', JSON.stringify(ingredients));
-      updateIngredientCount();
-    }
-
-    function switchTab(tab) {
-      const calcSec = document.getElementById('section-calculator');
-      const ingSec = document.getElementById('section-ingredients');
-      const calcTab = document.getElementById('tab-calculator');
-      const ingTab = document.getElementById('tab-ingredients');
-
-      if (tab = 'calculator') {
-        calcSec.classList.remove('hidden');
-        ingSec.classList.add('hidden');
-        calcTab.className = "flex-1 py-3 text-center font-bold text-amber-600 border-b-2 border-amber-600 flex justify-center items-center gap-2";
-        ingTab.className = "flex-1 py-3 text-center font-semibold text-slate-500 border-b-2 border-transparent hover:text-slate-700 flex justify-center items-center gap-2";
-        renderRecipeItems();
-      } else {
-        calcSec.classList.add('hidden');
-        ingSec.classList.remove('hidden');
-        ingTab.className = "flex-1 py-3 text-center font-bold text-amber-600 border-b-2 border-amber-600 flex justify-center items-center gap-2";
-        calcTab.className = "flex-1 py-3 text-center font-semibold text-slate-500 border-b-2 border-transparent hover:text-slate-700 flex justify-center items-center gap-2";
-        renderIngredientsList();
-      }
-    }
-
-    function updateIngredientCount() {
-      document.getElementById('ing-count').innerText = ingredients.length;
-    }
-
-    // Render Master Ingredients
-    function renderIngredientsList() {
-      const listEl = document.getElementById('ingredients-list');
-      listEl.innerHTML = '';
-
-      if (ingredients.length = 0) {
-        listEl.innerHTML = '<p class="text-sm text-slate-400 py-4 text-center">등록된 원재료가 없습니다.</p>';
-        return;
-      }
-
-      ingredients.forEach(ing => {
-        const unitP = getUnitPrice(ing);
-        const baseUnitStr = (ing.unit = 'kg') ? 'g' : ing.unit;
-        
-        const div = document.createElement('div');
-        div.className = 'py-3 flex justify-between items-center';
-        div.innerHTML = `
-          <div>
-            <p class="font-bold text-slate-800 text-sm">${ing.name}</p>
-            <p class="text-xs text-slate-400">구입: ${ing.qty.toLocaleString()}${ing.unit} / ${ing.price.toLocaleString()}원</p>
-          </div>
-          <div class="text-right flex items-center gap-3">
-            <div>
-              <p class="text-sm font-bold text-amber-700">${unitP.toFixed(1)}원 <span class="text-[10px] text-slate-400 font-normal">/${baseUnitStr}</span></p>
-            </div>
-            <button onclick="deleteIngredient('${ing.id}')" class="text-slate-300 hover:text-rose-500 p-1">
-              <i class="fa-solid fa-trash-can"></i>
-            </button>
-          </div>
-        `;
-        listEl.appendChild(div);
-      });
-      updateIngredientCount();
-    }
-
-    function saveIngredient() {
-      const name = document.getElementById('new-ing-name').value.trim();
-      const qty = parseFloat(document.getElementById('new-ing-qty').value);
-      const unit = document.getElementById('new-ing-unit').value;
-      const price = parseFloat(document.getElementById('new-ing-price').value);
-
-      if (!name || isNaN(qty) || isNaN(price) || qty <= 0 || price <= 0) {
-        alert('올바른 재료 정보를 모두 입력해주세요.');
-        return;
-      }
-
-      const newIng = {
-        id: Date.now().toString(),
-        name,
-        qty,
-        unit,
-        price
-      };
-
-      ingredients.push(newIng);
-      saveIngredientsToStorage();
-      renderIngredientsList();
-
-      document.getElementById('new-ing-name').value = '';
-      document.getElementById('new-ing-qty').value = '';
-      document.getElementById('new-ing-price').value = '';
-    }
-
-    function deleteIngredient(id) {
-      if (confirm('이 원재료를 단가표에서 삭제하시겠습니까?')) {
-        ingredients = ingredients.filter(i => i.id ! id);
-        saveIngredientsToStorage();
-        renderIngredientsList();
-      }
-    }
-
-    // Render Recipe List
-    function renderRecipeItems() {
-      const container = document.getElementById('recipe-items-container');
-      container.innerHTML = '';
-
-      recipeItems.forEach((item, index) => {
-        const div = document.createElement('div');
-        div.className = 'flex items-center gap-2 bg-slate-50 p-2.5 rounded-xl border border-slate-200';
-
-        let optionsHtml = ingredients.map(ing => 
-          `<option value="${ing.id}" ${ing.id = item.ingId ? 'selected' : ''}>${ing.name}</option>`
-        ).join('');
-
-        const selectedIng = ingredients.find(i => i.id = item.ingId);
-        const unitCost = selectedIng ? getUnitPrice(selectedIng) : 0;
-        const totalItemCost = Math.round(unitCost * (item.usage || 0));
-        const unitLabel = selectedIng ? (selectedIng.unit = 'kg' ? 'g' : selectedIng.unit) : 'g';
-
-        div.innerHTML = `
-          <select onchange="updateRecipeItem(${index}, 'ingId', this.value)" class="flex-1 bg-white border border-slate-300 rounded-lg p-2 text-xs font-bold text-slate-800 focus:outline-none">
-            ${optionsHtml}
-          </select>
-          <div class="w-24 flex items-center bg-white border border-slate-300 rounded-lg px-2">
-            <input type="number" value="${item.usage}" oninput="updateRecipeItem(${index}, 'usage', this.value)" class="w-full py-1.5 text-xs font-bold text-right text-slate-800 focus:outline-none">
-            <span class="text-[10px] text-slate-400 ml-1 font-bold">${unitLabel}</span>
-          </div>
-          <div class="w-16 text-right">
-            <span class="text-xs font-bold text-amber-700">${totalItemCost.toLocaleString()}원</span>
-          </div>
-          <button onclick="removeRecipeItem(${index})" class="text-slate-300 hover:text-rose-500 px-1">
-            <i class="fa-solid fa-xmark"></i>
-          </button>
-        `;
-        container.appendChild(div);
-      });
-
-      calculateTotal();
-    }
-
-    function addRecipeItem() {
-      if (ingredients.length = 0) {
-        alert('먼저 원재료 단가표에 재료를 등록해주세요!');
-        return;
-      }
-      recipeItems.push({ ingId: ingredients[0].id, usage: 0 });
-      renderRecipeItems();
-    }
-
-    function updateRecipeItem(index, key, value) {
-      if (key = 'usage') {
-        recipeItems[index].usage = parseFloat(value) || 0;
-      } else {
-        recipeItems[index][key] = value;
-      }
-      renderRecipeItems();
-    }
-
-    function removeRecipeItem(index) {
-      recipeItems.splice(index, 1);
-      renderRecipeItems();
-    }
-
-    function calculateTotal() {
-      let totalBatchCost = 0;
-
-      recipeItems.forEach(item => {
-        const ing = ingredients.find(i => i.id === item.ingId);
-        if (ing) {
-          const unitPrice = getUnitPrice(ing);
-          totalBatchCost += unitPrice * (item.usage || 0);
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>제빵 원가 계산기 Pro</title>
+    <style>
+        :root {
+            --primary: #d97706;
+            --primary-hover: #b45309;
+            --bg-main: #f8fafc;
+            --surface: #ffffff;
+            --text-dark: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --accent-bg: #fffbeb;
+            --accent-border: #fef3c7;
         }
-      });
 
-      const yieldQty = parseFloat(document.getElementById('recipe-yield').value) || 1;
-      const targetPrice = parseFloat(document.getElementById('recipe-price').value) || 0;
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
 
-      const unitCost = totalBatchCost / yieldQty;
-      const costRatio = targetPrice > 0 ? (unitCost / targetPrice) * 100 : 0;
-      const unitMargin = targetPrice - unitCost;
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-dark);
+            padding-bottom: 40px;
+        }
 
-      document.getElementById('res-total-cost').innerText = `${Math.round(totalBatchCost).toLocaleString()}원`;
-      document.getElementById('res-unit-cost').innerText = `${Math.round(unitCost).toLocaleString()}원`;
-      document.getElementById('res-cost-ratio').innerText = `${costRatio.toFixed(1)} %`;
-      document.getElementById('res-unit-margin').innerText = `${Math.round(unitMargin).toLocaleString()}원`;
-    }
+        header {
+            background-color: var(--primary);
+            color: white;
+            padding: 16px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
 
-    // Initialize
-    updateIngredientCount();
-    renderRecipeItems();
-  </script>
+        header h1 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
 
+        .badge {
+            background: rgba(255,255,255,0.2);
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+        }
+
+        .tabs {
+            display: flex;
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 57px;
+            z-index: 90;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 14px 8px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            border: none;
+            background: none;
+            border-bottom: 3px solid transparent;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .tab-btn.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+            background: var(--accent-bg);
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 16px;
+        }
+
+        .card {
+            background: var(--surface);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 16px;
+            border: 1px solid var(--border);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .card-title {
+            font-size: 1.05rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+            color: var(--text-dark);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .form-group {
+            margin-bottom: 14px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+        }
+
+        .input-row {
+            display: flex;
+            gap: 10px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            font-size: 1rem;
+            background: #fff;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        input:focus, select:focus {
+            border-color: var(--primary);
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px 18px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            border: none;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            width: 100%;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--primary);
+            color: var(--primary);
+        }
+
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+            padding: 8px 12px;
+            font-size: 0.85rem;
+        }
+
+        .btn-success {
+            background: #10b981;
+            color: white;
+            width: 100%;
+        }
+
+        .ingredient-item {
+            background: var(--bg-main);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 10px;
+            position: relative;
+        }
+
+        .ingredient-item .row-top {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+
+        .ingredient-item .row-bottom {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .summary-box {
+            background: #1e293b;
+            color: white;
+            border-radius: 16px;
+            padding: 20px;
+            margin-top: 10px;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .summary-item .label {
+            font-size: 0.8rem;
+            color: #94a3b8;
+            margin-bottom: 4px;
+        }
+
+        .summary-item .value {
+            font-size: 1.25rem;
+            font-weight: 700;
+        }
+
+        .summary-item .value.highlight {
+            color: #fbbf24;
+        }
+
+        .summary-item .value.margin {
+            color: #34d399;
+        }
+
+        .list-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .list-table th, .list-table td {
+            padding: 12px 8px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.9rem;
+        }
+
+        .list-table th {
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .settings-box {
+            background: #f1f5f9;
+            border-radius: 10px;
+            padding: 12px;
+            margin-bottom: 16px;
+            font-size: 0.85rem;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>🥖 제빵 원가 계산기</h1>
+        <span class="badge">Mobile / Tablet</span>
+    </header>
+
+    <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab('recipe')">📋 레시피 원가계산</button>
+        <button class="tab-btn" onclick="switchTab('ingredients')">🏷️ 원재료 단가표 (<span id="ing-count">0</span>)</button>
+    </div>
+
+    <div class="container">
+        
+        <!-- 1. 레시피 원가 계산 탭 -->
+        <div id="tab-recipe" class="tab-content active">
+            
+            <div class="card">
+                <div class="card-title">기본 레시피 정보</div>
+                <div class="form-group">
+                    <label>제품 / 레시피 명</label>
+                    <input type="text" id="recipe-name" placeholder="예: 기본 식빵 1배치" value="기본 식빵 1배치">
+                </div>
+                <div class="input-row">
+                    <div class="form-group" style="flex: 1;">
+                        <label>총 완성 개수 (EA)</label>
+                        <input type="number" id="total-count" value="7" oninput="calculateRecipe()">
+                    </div>
+                    <div class="form-group" style="flex: 1;">
+                        <label>목표 판매가 (개당 / 원)</label>
+                        <input type="number" id="target-price" value="3500" oninput="calculateRecipe()">
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">
+                    <span>🍞 배합표 / 재료 투입</span>
+                    <button class="btn btn-outline" style="padding: 6px 12px; font-size: 0.85rem;" onclick="addRecipeRow()">+ 재료 추가</button>
+                </div>
+                <div id="recipe-ingredients-list">
+                    <!-- Dynamic Rows -->
+                </div>
+            </div>
+
+            <div class="summary-box">
+                <div class="summary-grid">
+                    <div class="summary-item">
+                        <div class="label">총 재료비 (1배치)</div>
+                        <div class="value highlight" id="res-total-cost">0원</div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="label">개당 재료원가</div>
+                        <div class="value" id="res-unit-cost">0원</div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="label">원가율 (재료비/판매가)</div>
+                        <div class="value" id="res-cost-ratio">0 %</div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="label">개당 예상 마진</div>
+                        <div class="value margin" id="res-unit-margin">0원</div>
+                    </div>
+                </div>
+
+                <button class="btn btn-success" onclick="sendToGoogleSheets()">☁️ 구글 드라이브(시트)로 저장 (Tx)</button>
+            </div>
+
+            <div class="card" style="margin-top: 16px;">
+                <div class="card-title" style="font-size: 0.95rem;">⚙️ 구글 드라이브 연동 설정</div>
+                <div class="form-group">
+                    <label>Google Apps Script Webhook URL</label>
+                    <input type="text" id="gas-url" placeholder="https://script.google.com/macros/s/.../exec" onchange="saveGasUrl()">
+                </div>
+            </div>
+
+        </div>
+
+        <!-- 2. 원재료 단가표 탭 -->
+        <div id="tab-ingredients" class="tab-content">
+            
+            <div class="card">
+                <div class="card-title">신규 원재료 등록</div>
+                <div class="form-group">
+                    <label>재료명</label>
+                    <input type="text" id="ing-name" placeholder="예: 강력분, 무염버터, 설탕">
+                </div>
+                <div class="input-row">
+                    <div class="form-group" style="flex: 1;">
+                        <label>구매 용량 (g 또는 개)</label>
+                        <input type="number" id="ing-amount" placeholder="예: 1000">
+                    </div>
+                    <div class="form-group" style="flex: 1;">
+                        <label>구매 가격 (원)</label>
+                        <input type="number" id="ing-price" placeholder="예: 2500">
+                    </div>
+                </div>
+                <button class="btn btn-primary" onclick="addIngredient()">원재료 추가하기</button>
+            </div>
+
+            <div class="card">
+                <div class="card-title">등록된 원재료 목록</div>
+                <table class="list-table">
+                    <thead>
+                        <tr>
+                            <th>재료명</th>
+                            <th>구매단가</th>
+                            <th>1g당 단가</th>
+                            <th>삭제</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ingredients-table-body">
+                        <!-- Dynamic Rows -->
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+
+    </div>
+
+    <script>
+        // Data State
+        let ingredients = JSON.parse(localStorage.getItem('bakery_ingredients') || '[]');
+        let recipeRows = [];
+        let gasUrl = localStorage.getItem('bakery_gas_url') || '';
+
+        // Initial Setup
+        document.addEventListener("DOMContentLoaded", () => {
+            document.getElementById('gas-url').value = gasUrl;
+            renderIngredientsTable();
+            addRecipeRow(); // Add default empty row
+        });
+
+        // Tab Switching
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+
+            if (tabName === 'recipe') {
+                document.querySelectorAll('.tab-btn')[0].classList.add('active');
+                document.getElementById('tab-recipe').classList.add('active');
+            } else {
+                document.querySelectorAll('.tab-btn')[1].classList.add('active');
+                document.getElementById('tab-ingredients').classList.add('active');
+            }
+        }
+
+        // Save GAS URL
+        function saveGasUrl() {
+            gasUrl = document.getElementById('gas-url').value.trim();
+            localStorage.setItem('bakery_gas_url', gasUrl);
+        }
+
+        // Ingredient Management
+        function addIngredient() {
+            const name = document.getElementById('ing-name').value.trim();
+            const amount = parseFloat(document.getElementById('ing-amount').value);
+            const price = parseFloat(document.getElementById('ing-price').value);
+
+            if (!name || isNaN(amount) || isNaN(price) || amount <= 0) {
+                alert('올바른 재료명, 용량, 가격을 입력해주세요.');
+                return;
+            }
+
+            const pricePerGram = price / amount;
+            const newIng = { id: Date.now(), name, amount, price, pricePerGram };
+
+            ingredients.push(newIng);
+            localStorage.setItem('bakery_ingredients', JSON.stringify(ingredients));
+
+            // Reset inputs
+            document.getElementById('ing-name').value = '';
+            document.getElementById('ing-amount').value = '';
+            document.getElementById('ing-price').value = '';
+
+            renderIngredientsTable();
+            updateRecipeDropdowns();
+            alert(`'${name}' 재료가 등록되었습니다.`);
+        }
+
+        function deleteIngredient(id) {
+            ingredients = ingredients.filter(item => item.id !== id);
+            localStorage.setItem('bakery_ingredients', JSON.stringify(ingredients));
+            renderIngredientsTable();
+            updateRecipeDropdowns();
+            calculateRecipe();
+        }
+
+        function renderIngredientsTable() {
+            const tbody = document.getElementById('ingredients-table-body');
+            document.getElementById('ing-count').innerText = ingredients.length;
+
+            if (ingredients.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:#94a3b8; padding:20px;">등록된 재료가 없습니다.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = ingredients.map(item => `
+                <tr>
+                    <td><strong>${item.name}</strong></td>
+                    <td>${item.price.toLocaleString()}원 / ${item.amount}g</td>
+                    <td>${item.pricePerGram.toFixed(2)}원</td>
+                    <td><button class="btn btn-danger" onclick="deleteIngredient(${item.id})">삭제</button></td>
+                </tr>
+            `).join('');
+        }
+
+        // Recipe Logic
+        function addRecipeRow() {
+            if (ingredients.length === 0) {
+                alert('등록된 원재료가 없습니다. 먼저 [원재료 단가표] 탭에서 재료를 추가해주세요!');
+                switchTab('ingredients');
+                return;
+            }
+
+            const container = document.getElementById('recipe-ingredients-list');
+            const rowId = Date.now();
+
+            const rowHtml = `
+                <div class="ingredient-item" id="row-${rowId}">
+                    <div class="row-top">
+                        <select class="recipe-ing-select" onchange="calculateRecipe()">
+                            ${ingredients.map(ing => `<option value="${ing.id}">${ing.name} (${ing.pricePerGram.toFixed(2)}원/g)</option>`).join('')}
+                        </select>
+                        <input type="number" class="recipe-ing-usage" placeholder="사용량(g)" style="width: 110px;" oninput="calculateRecipe()">
+                        <button class="btn btn-danger" onclick="removeRecipeRow(${rowId})">✕</button>
+                    </div>
+                    <div class="row-bottom">
+                        <span>재료 소요 원가:</span>
+                        <strong class="row-cost" style="color: var(--primary);">0원</strong>
+                    </div>
+                </div>
+            `;
+
+            container.insertAdjacentHTML('beforeend', rowHtml);
+            calculateRecipe();
+        }
+
+        function removeRecipeRow(rowId) {
+            const row = document.getElementById(`row-${rowId}`);
+            if (row) row.remove();
+            calculateRecipe();
+        }
+
+        function updateRecipeDropdowns() {
+            document.querySelectorAll('.recipe-ing-select').forEach(select => {
+                const currentVal = select.value;
+                select.innerHTML = ingredients.map(ing => `<option value="${ing.id}">${ing.name} (${ing.pricePerGram.toFixed(2)}원/g)</option>`).join('');
+                select.value = currentVal;
+            });
+        }
+
+        function calculateRecipe() {
+            const totalCount = parseFloat(document.getElementById('total-count').value) || 1;
+            const targetPrice = parseFloat(document.getElementById('target-price').value) || 0;
+
+            let totalRecipeCost = 0;
+
+            document.querySelectorAll('.ingredient-item').forEach(row => {
+                const select = row.querySelector('.recipe-ing-select');
+                const usageInput = row.querySelector('.recipe-ing-usage');
+                const costDisplay = row.querySelector('.row-cost');
+
+                if (select && usageInput) {
+                    const ingId = parseFloat(select.value);
+                    const usage = parseFloat(usageInput.value) || 0;
+                    const ing = ingredients.find(item => item.id === ingId);
+
+                    if (ing) {
+                        const rowCost = usage * ing.pricePerGram;
+                        totalRecipeCost += rowCost;
+                        costDisplay.innerText = `${Math.round(rowCost).toLocaleString()}원`;
+                    }
+                }
+            });
+
+            const unitCost = totalRecipeCost / totalCount;
+            const costRatio = targetPrice > 0 ? (unitCost / targetPrice) * 100 : 0;
+            const unitMargin = targetPrice - unitCost;
+
+            document.getElementById('res-total-cost').innerText = `${Math.round(totalRecipeCost).toLocaleString()}원`;
+            document.getElementById('res-unit-cost').innerText = `${Math.round(unitCost).toLocaleString()}원`;
+            document.getElementById('res-cost-ratio').innerText = `${costRatio.toFixed(1)} %`;
+            document.getElementById('res-unit-margin').innerText = `${Math.round(unitMargin).toLocaleString()}원`;
+        }
+
+        // Send Transaction to Google Sheets
+        function sendToGoogleSheets() {
+            if (!gasUrl) {
+                alert('하단 연동 설정에서 Google Apps Script Webhook URL을 먼저 입력해주세요!');
+                return;
+            }
+
+            const recipeName = document.getElementById('recipe-name').value.trim();
+            const totalCount = document.getElementById('total-count').value;
+            const targetPrice = document.getElementById('target-price').value;
+            const totalCost = document.getElementById('res-total-cost').innerText;
+            const unitCost = document.getElementById('res-unit-cost').innerText;
+            const costRatio = document.getElementById('res-cost-ratio').innerText;
+
+            const payload = {
+                type: 'recipe',
+                recipeName,
+                totalCount,
+                targetPrice,
+                totalCost,
+                unitCost,
+                costRatio
+            };
+
+            fetch(gasUrl, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            })
+            .then(() => {
+                alert('☁️ 구글 드라이브(시트)로 성공적으로 전송되었습니다!');
+            })
+            .catch(err => {
+                alert('전송 중 오류가 발생했습니다: ' + err);
+            });
+        }
+    </script>
 </body>
 </html>
