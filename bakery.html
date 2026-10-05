@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>제빵 원가 계산기 Pro</title>
+    <title>제빵 원가 계산기 Pro - Local DB</title>
     <style>
         :root {
             --primary: #d97706;
@@ -14,7 +14,6 @@
             --text-muted: #64748b;
             --border: #e2e8f0;
             --accent-bg: #fffbeb;
-            --accent-border: #fef3c7;
         }
 
         * {
@@ -47,9 +46,6 @@
         header h1 {
             font-size: 1.25rem;
             font-weight: 700;
-            display: flex;
-            align-items: center;
-            gap: 8px;
         }
 
         .badge {
@@ -79,7 +75,6 @@
             background: none;
             border-bottom: 3px solid transparent;
             cursor: pointer;
-            transition: all 0.2s;
         }
 
         .tab-btn.active {
@@ -107,7 +102,6 @@
             font-size: 1.05rem;
             font-weight: 700;
             margin-bottom: 16px;
-            color: var(--text-dark);
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -135,13 +129,12 @@
             padding: 12px;
             border: 1px solid var(--border);
             border-radius: 10px;
-            font-size: 1rem;
+            font-size: 0.95rem;
             background: #fff;
             outline: none;
-            transition: border-color 0.2s;
         }
 
-        input:focus, select:focus {
+        input:focus {
             border-color: var(--primary);
         }
 
@@ -155,37 +148,13 @@
             font-size: 0.95rem;
             border: none;
             cursor: pointer;
-            transition: background 0.2s, transform 0.1s;
         }
 
-        .btn:active {
-            transform: scale(0.98);
-        }
-
-        .btn-primary {
-            background: var(--primary);
-            color: white;
-            width: 100%;
-        }
-
-        .btn-outline {
-            background: transparent;
-            border: 1px solid var(--primary);
-            color: var(--primary);
-        }
-
-        .btn-danger {
-            background: #ef4444;
-            color: white;
-            padding: 8px 12px;
-            font-size: 0.85rem;
-        }
-
-        .btn-success {
-            background: #10b981;
-            color: white;
-            width: 100%;
-        }
+        .btn-primary { background: var(--primary); color: white; width: 100%; }
+        .btn-outline { background: transparent; border: 1px solid var(--primary); color: var(--primary); }
+        .btn-danger { background: #ef4444; color: white; padding: 8px 12px; font-size: 0.85rem; }
+        .btn-success { background: #10b981; color: white; width: 100%; }
+        .btn-sync { background: #0284c7; color: white; width: 100%; margin-bottom: 12px; font-size: 1rem; padding: 14px; }
 
         .ingredient-item {
             background: var(--bg-main);
@@ -193,12 +162,11 @@
             border-radius: 12px;
             padding: 12px;
             margin-bottom: 10px;
-            position: relative;
         }
 
         .ingredient-item .row-top {
             display: flex;
-            gap: 10px;
+            gap: 8px;
             margin-bottom: 8px;
         }
 
@@ -215,7 +183,6 @@
             color: white;
             border-radius: 16px;
             padding: 20px;
-            margin-top: 10px;
         }
 
         .summary-grid {
@@ -225,81 +192,42 @@
             margin-bottom: 16px;
         }
 
-        .summary-item .label {
-            font-size: 0.8rem;
-            color: #94a3b8;
-            margin-bottom: 4px;
-        }
+        .summary-item .label { font-size: 0.8rem; color: #94a3b8; margin-bottom: 4px; }
+        .summary-item .value { font-size: 1.25rem; font-weight: 700; }
+        .summary-item .value.highlight { color: #fbbf24; }
+        .summary-item .value.margin { color: #34d399; }
 
-        .summary-item .value {
-            font-size: 1.25rem;
-            font-weight: 700;
-        }
+        .list-table { width: 100%; border-collapse: collapse; }
+        .list-table th, .list-table td { padding: 10px 6px; text-align: left; border-bottom: 1px solid var(--border); font-size: 0.85rem; }
 
-        .summary-item .value.highlight {
-            color: #fbbf24;
-        }
-
-        .summary-item .value.margin {
-            color: #34d399;
-        }
-
-        .list-table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        .list-table th, .list-table td {
-            padding: 12px 8px;
-            text-align: left;
-            border-bottom: 1px solid var(--border);
-            font-size: 0.9rem;
-        }
-
-        .list-table th {
-            color: var(--text-muted);
-            font-weight: 600;
-        }
-
-        .tab-content {
-            display: none;
-        }
-
-        .tab-content.active {
-            display: block;
-        }
-
-        .settings-box {
-            background: #f1f5f9;
-            border-radius: 10px;
-            padding: 12px;
-            margin-bottom: 16px;
-            font-size: 0.85rem;
-        }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
     </style>
 </head>
 <body>
 
     <header>
-        <h1>🥖 제빵 원가 계산기</h1>
-        <span class="badge">Mobile / Tablet</span>
+        <h1>🥖 제빵 원가 계산기 Pro</h1>
+        <span class="badge">Local DB</span>
     </header>
 
     <div class="tabs">
-        <button class="tab-btn active" onclick="switchTab('recipe')">📋 레시피 원가계산</button>
-        <button class="tab-btn" onclick="switchTab('ingredients')">🏷️ 원재료 단가표 (<span id="ing-count">0</span>)</button>
+        <button class="tab-btn active" onclick="switchTab('recipe')">📋 레시피 계산</button>
+        <button class="tab-btn" onclick="switchTab('ingredients')">🏷️ 원재료 DB (<span id="ing-count">0</span>)</button>
     </div>
 
     <div class="container">
         
-        <!-- 1. 레시피 원가 계산 탭 -->
+        <!-- 1. 레시피 계산 탭 -->
         <div id="tab-recipe" class="tab-content active">
             
+            <button class="btn btn-sync" onclick="syncDataFromGoogleSheets()">🔄 구글 시트 DB 동기화 (300여 개)</button>
+
             <div class="card">
                 <div class="card-title">기본 레시피 정보</div>
                 <div class="form-group">
                     <label>제품 / 레시피 명</label>
-                    <input type="text" id="recipe-name" placeholder="예: 기본 식빵 1배치" value="기본 식빵 1배치">
+                    <input type="text" id="recipe-name" value="기본 식빵 1배치">
                 </div>
                 <div class="input-row">
                     <div class="form-group" style="flex: 1;">
@@ -307,7 +235,7 @@
                         <input type="number" id="total-count" value="7" oninput="calculateRecipe()">
                     </div>
                     <div class="form-group" style="flex: 1;">
-                        <label>목표 판매가 (개당 / 원)</label>
+                        <label>목표 판매가 (원)</label>
                         <input type="number" id="target-price" value="3500" oninput="calculateRecipe()">
                     </div>
                 </div>
@@ -315,13 +243,14 @@
 
             <div class="card">
                 <div class="card-title">
-                    <span>🍞 배합표 / 재료 투입</span>
+                    <span>🍞 배합표 (키워드 자동완성)</span>
                     <button class="btn btn-outline" style="padding: 6px 12px; font-size: 0.85rem;" onclick="addRecipeRow()">+ 재료 추가</button>
                 </div>
-                <div id="recipe-ingredients-list">
-                    <!-- Dynamic Rows -->
-                </div>
+                <div id="recipe-ingredients-list"></div>
             </div>
+
+            <!-- Auto-complete Datalist Source -->
+            <datalist id="ingredients-datalist"></datalist>
 
             <div class="summary-box">
                 <div class="summary-grid">
@@ -334,7 +263,7 @@
                         <div class="value" id="res-unit-cost">0원</div>
                     </div>
                     <div class="summary-item">
-                        <div class="label">원가율 (재료비/판매가)</div>
+                        <div class="label">원가율</div>
                         <div class="value" id="res-cost-ratio">0 %</div>
                     </div>
                     <div class="summary-item">
@@ -347,72 +276,42 @@
             </div>
 
             <div class="card" style="margin-top: 16px;">
-                <div class="card-title" style="font-size: 0.95rem;">⚙️ 구글 드라이브 연동 설정</div>
-                <div class="form-group">
-                    <label>Google Apps Script Webhook URL</label>
-                    <input type="text" id="gas-url" placeholder="https://script.google.com/macros/s/.../exec" onchange="saveGasUrl()">
-                </div>
+                <div class="card-title" style="font-size: 0.9rem;">⚙️ Google Apps Script Webhook URL</div>
+                <input type="text" id="gas-url" placeholder="https://script.google.com/macros/s/.../exec" onchange="saveGasUrl()">
             </div>
 
         </div>
 
-        <!-- 2. 원재료 단가표 탭 -->
+        <!-- 2. 원재료 DB 탭 -->
         <div id="tab-ingredients" class="tab-content">
-            
             <div class="card">
-                <div class="card-title">신규 원재료 등록</div>
-                <div class="form-group">
-                    <label>재료명</label>
-                    <input type="text" id="ing-name" placeholder="예: 강력분, 무염버터, 설탕">
-                </div>
-                <div class="input-row">
-                    <div class="form-group" style="flex: 1;">
-                        <label>구매 용량 (g 또는 개)</label>
-                        <input type="number" id="ing-amount" placeholder="예: 1000">
-                    </div>
-                    <div class="form-group" style="flex: 1;">
-                        <label>구매 가격 (원)</label>
-                        <input type="number" id="ing-price" placeholder="예: 2500">
-                    </div>
-                </div>
-                <button class="btn btn-primary" onclick="addIngredient()">원재료 추가하기</button>
-            </div>
-
-            <div class="card">
-                <div class="card-title">등록된 원재료 목록</div>
+                <div class="card-title">로컬 DB에 저장된 원재료 목록</div>
                 <table class="list-table">
                     <thead>
                         <tr>
-                            <th>재료명</th>
-                            <th>구매단가</th>
-                            <th>1g당 단가</th>
+                            <th>재료 선택명</th>
+                            <th>1g/ml당 단가</th>
                             <th>삭제</th>
                         </tr>
                     </thead>
-                    <tbody id="ingredients-table-body">
-                        <!-- Dynamic Rows -->
-                    </tbody>
+                    <tbody id="ingredients-table-body"></tbody>
                 </table>
             </div>
-
         </div>
 
     </div>
 
     <script>
-        // Data State
-        let ingredients = JSON.parse(localStorage.getItem('bakery_ingredients') || '[]');
-        let recipeRows = [];
+        let ingredients = JSON.parse(localStorage.getItem('bakery_db_ingredients') || '[]');
         let gasUrl = localStorage.getItem('bakery_gas_url') || '';
 
-        // Initial Setup
         document.addEventListener("DOMContentLoaded", () => {
             document.getElementById('gas-url').value = gasUrl;
             renderIngredientsTable();
-            addRecipeRow(); // Add default empty row
+            updateDatalist();
+            addRecipeRow();
         });
 
-        // Tab Switching
         function switchTab(tabName) {
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
             document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
@@ -426,45 +325,42 @@
             }
         }
 
-        // Save GAS URL
         function saveGasUrl() {
             gasUrl = document.getElementById('gas-url').value.trim();
             localStorage.setItem('bakery_gas_url', gasUrl);
         }
 
-        // Ingredient Management
-        function addIngredient() {
-            const name = document.getElementById('ing-name').value.trim();
-            const amount = parseFloat(document.getElementById('ing-amount').value);
-            const price = parseFloat(document.getElementById('ing-price').value);
-
-            if (!name || isNaN(amount) || isNaN(price) || amount <= 0) {
-                alert('올바른 재료명, 용량, 가격을 입력해주세요.');
+        // Sync 300+ ingredients from Google Sheets to Local DB
+        function syncDataFromGoogleSheets() {
+            if (!gasUrl) {
+                alert('하단 연동 설정에 Google Apps Script Webhook URL을 먼저 입력해 주세요.');
                 return;
             }
 
-            const pricePerGram = price / amount;
-            const newIng = { id: Date.now(), name, amount, price, pricePerGram };
+            alert('구글 시트로부터 원재료 DB(300여 개)를 동기화합니다...');
 
-            ingredients.push(newIng);
-            localStorage.setItem('bakery_ingredients', JSON.stringify(ingredients));
-
-            // Reset inputs
-            document.getElementById('ing-name').value = '';
-            document.getElementById('ing-amount').value = '';
-            document.getElementById('ing-price').value = '';
-
-            renderIngredientsTable();
-            updateRecipeDropdowns();
-            alert(`'${name}' 재료가 등록되었습니다.`);
+            fetch(gasUrl)
+                .then(res => res.json())
+                .then(data => {
+                    if (Array.isArray(data) && data.length > 0) {
+                        ingredients = data;
+                        localStorage.setItem('bakery_db_ingredients', JSON.stringify(ingredients));
+                        renderIngredientsTable();
+                        updateDatalist();
+                        calculateRecipe();
+                        alert(`성공적으로 ${data.length}개의 원재료 데이터를 Local DB로 동기화했습니다!`);
+                    } else {
+                        alert('가져올 원재료 데이터가 없거나 구글 시트 배포 설정을 확인해 주세요.');
+                    }
+                })
+                .catch(err => {
+                    alert('동기화 실패: ' + err);
+                });
         }
 
-        function deleteIngredient(id) {
-            ingredients = ingredients.filter(item => item.id !== id);
-            localStorage.setItem('bakery_ingredients', JSON.stringify(ingredients));
-            renderIngredientsTable();
-            updateRecipeDropdowns();
-            calculateRecipe();
+        function updateDatalist() {
+            const datalist = document.getElementById('ingredients-datalist');
+            datalist.innerHTML = ingredients.map(ing => `<option value="${ing.name}">${ing.pricePerGram.toFixed(2)}원/g</option>`).join('');
         }
 
         function renderIngredientsTable() {
@@ -472,63 +368,52 @@
             document.getElementById('ing-count').innerText = ingredients.length;
 
             if (ingredients.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:#94a3b8; padding:20px;">등록된 재료가 없습니다.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="3" style="text-align:center; color:#94a3b8; padding:20px;">[구글 시트 DB 동기화] 버튼을 눌러 데이터를 불러와 주세요.</td></tr>`;
                 return;
             }
 
-            tbody.innerHTML = ingredients.map(item => `
+            tbody.innerHTML = ingredients.slice(0, 100).map(item => `
                 <tr>
                     <td><strong>${item.name}</strong></td>
-                    <td>${item.price.toLocaleString()}원 / ${item.amount}g</td>
                     <td>${item.pricePerGram.toFixed(2)}원</td>
                     <td><button class="btn btn-danger" onclick="deleteIngredient(${item.id})">삭제</button></td>
                 </tr>
-            `).join('');
+            `).join('') + (ingredients.length > 100 ? `<tr><td colspan="3" style="text-align:center; color:#64748b;">외 ${ingredients.length - 100}개 재료 로드됨...</td></tr>` : '');
         }
 
-        // Recipe Logic
-        function addRecipeRow() {
-            if (ingredients.length === 0) {
-                alert('등록된 원재료가 없습니다. 먼저 [원재료 단가표] 탭에서 재료를 추가해주세요!');
-                switchTab('ingredients');
-                return;
-            }
+        function deleteIngredient(id) {
+            ingredients = ingredients.filter(item => item.id !== id);
+            localStorage.setItem('bakery_db_ingredients', JSON.stringify(ingredients));
+            renderIngredientsTable();
+            updateDatalist();
+            calculateRecipe();
+        }
 
+        function addRecipeRow() {
             const container = document.getElementById('recipe-ingredients-list');
             const rowId = Date.now();
 
             const rowHtml = `
                 <div class="ingredient-item" id="row-${rowId}">
                     <div class="row-top">
-                        <select class="recipe-ing-select" onchange="calculateRecipe()">
-                            ${ingredients.map(ing => `<option value="${ing.id}">${ing.name} (${ing.pricePerGram.toFixed(2)}원/g)</option>`).join('')}
-                        </select>
-                        <input type="number" class="recipe-ing-usage" placeholder="사용량(g)" style="width: 110px;" oninput="calculateRecipe()">
+                        <input type="text" class="recipe-ing-input" list="ingredients-datalist" placeholder="재료명 검색 (예: 강력분)" onchange="calculateRecipe()" oninput="calculateRecipe()">
+                        <input type="number" class="recipe-ing-usage" placeholder="투입량(g)" style="width: 100px;" oninput="calculateRecipe()">
                         <button class="btn btn-danger" onclick="removeRecipeRow(${rowId})">✕</button>
                     </div>
                     <div class="row-bottom">
-                        <span>재료 소요 원가:</span>
+                        <span>소요 원가:</span>
                         <strong class="row-cost" style="color: var(--primary);">0원</strong>
                     </div>
                 </div>
             `;
 
             container.insertAdjacentHTML('beforeend', rowHtml);
-            calculateRecipe();
         }
 
         function removeRecipeRow(rowId) {
             const row = document.getElementById(`row-${rowId}`);
             if (row) row.remove();
             calculateRecipe();
-        }
-
-        function updateRecipeDropdowns() {
-            document.querySelectorAll('.recipe-ing-select').forEach(select => {
-                const currentVal = select.value;
-                select.innerHTML = ingredients.map(ing => `<option value="${ing.id}">${ing.name} (${ing.pricePerGram.toFixed(2)}원/g)</option>`).join('');
-                select.value = currentVal;
-            });
         }
 
         function calculateRecipe() {
@@ -538,19 +423,21 @@
             let totalRecipeCost = 0;
 
             document.querySelectorAll('.ingredient-item').forEach(row => {
-                const select = row.querySelector('.recipe-ing-select');
+                const input = row.querySelector('.recipe-ing-input');
                 const usageInput = row.querySelector('.recipe-ing-usage');
                 const costDisplay = row.querySelector('.row-cost');
 
-                if (select && usageInput) {
-                    const ingId = parseFloat(select.value);
+                if (input && usageInput) {
+                    const ingName = input.value.trim();
                     const usage = parseFloat(usageInput.value) || 0;
-                    const ing = ingredients.find(item => item.id === ingId);
+                    const ing = ingredients.find(item => item.name === ingName);
 
                     if (ing) {
                         const rowCost = usage * ing.pricePerGram;
                         totalRecipeCost += rowCost;
-                        costDisplay.innerText = `${Math.round(rowCost).toLocaleString()}원`;
+                        costDisplay.innerText = `${Math.round(rowCost).toLocaleString()}원 (${ing.pricePerGram.toFixed(2)}원/g)`;
+                    } else {
+                        costDisplay.innerText = `0원 (단가 미등록)`;
                     }
                 }
             });
@@ -565,28 +452,19 @@
             document.getElementById('res-unit-margin').innerText = `${Math.round(unitMargin).toLocaleString()}원`;
         }
 
-        // Send Transaction to Google Sheets
         function sendToGoogleSheets() {
             if (!gasUrl) {
-                alert('하단 연동 설정에서 Google Apps Script Webhook URL을 먼저 입력해주세요!');
+                alert('Webhook URL을 입력해 주세요!');
                 return;
             }
 
-            const recipeName = document.getElementById('recipe-name').value.trim();
-            const totalCount = document.getElementById('total-count').value;
-            const targetPrice = document.getElementById('target-price').value;
-            const totalCost = document.getElementById('res-total-cost').innerText;
-            const unitCost = document.getElementById('res-unit-cost').innerText;
-            const costRatio = document.getElementById('res-cost-ratio').innerText;
-
             const payload = {
-                type: 'recipe',
-                recipeName,
-                totalCount,
-                targetPrice,
-                totalCost,
-                unitCost,
-                costRatio
+                recipeName: document.getElementById('recipe-name').value.trim(),
+                totalCount: document.getElementById('total-count').value,
+                targetPrice: document.getElementById('target-price').value,
+                totalCost: document.getElementById('res-total-cost').innerText,
+                unitCost: document.getElementById('res-unit-cost').innerText,
+                costRatio: document.getElementById('res-cost-ratio').innerText
             };
 
             fetch(gasUrl, {
@@ -595,12 +473,8 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
             })
-            .then(() => {
-                alert('☁️ 구글 드라이브(시트)로 성공적으로 전송되었습니다!');
-            })
-            .catch(err => {
-                alert('전송 중 오류가 발생했습니다: ' + err);
-            });
+            .then(() => alert('☁️ 구글 드라이브(시트)로 레시피 데이터가 전송되었습니다!'))
+            .catch(err => alert('전송 실패: ' + err));
         }
     </script>
 </body>
