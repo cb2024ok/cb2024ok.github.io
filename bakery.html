@@ -458,13 +458,31 @@
                 return;
             }
 
+            // 현재 배합표에 입력된 재료 목록과 수량을 조합 (예: 라프티스노우 400g, 설탕 100g)
+            const detailsList = [];
+            document.querySelectorAll('.ingredient-item').forEach(row => {
+                const input = row.querySelector('.recipe-ing-input');
+                const usageInput = row.querySelector('.recipe-ing-usage');
+                
+                if (input && usageInput) {
+                    const ingName = input.value.trim();
+                    const usage = parseFloat(usageInput.value) || 0;
+                    if (ingName && usage > 0) {
+                        detailsList.push(`${ingName} ${usage}g`);
+                    }
+                }
+            });
+
+            const ingredientsDetailText = detailsList.join(', ');
+
             const payload = {
                 recipeName: document.getElementById('recipe-name').value.trim(),
                 totalCount: document.getElementById('total-count').value,
                 targetPrice: document.getElementById('target-price').value,
                 totalCost: document.getElementById('res-total-cost').innerText,
                 unitCost: document.getElementById('res-unit-cost').innerText,
-                costRatio: document.getElementById('res-cost-ratio').innerText
+                costRatio: document.getElementById('res-cost-ratio').innerText,
+                ingredientsDetail: ingredientsDetailText // 상세 배합 내역 텍스트 추가
             };
 
             fetch(gasUrl, {
@@ -473,7 +491,7 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
             })
-            .then(() => alert('☁️ 구글 드라이브(시트)로 레시피 데이터가 전송되었습니다!'))
+            .then(() => alert('☁️ 구글 드라이브(시트)로 레시피 데이터 및 상세 배합표가 전송되었습니다!'))
             .catch(err => alert('전송 실패: ' + err));
         }
     </script>
