@@ -338,8 +338,7 @@
 
             <div class="card" style="margin-top: 16px;">
                 <div class="card-title" style="font-size: 0.9rem;">⚙️ Google Apps Script Webhook URL</div>
-                <input type="text" id="gas-url"
-                    placeholder="https://script.google.com/macros/s/AKfycbycZJf6ktemWTeptpJAU-jNK8EFKdGbM-uUFMnSMvpOPL2a2ysVwjDeRkX4ixUshauU/exec"
+                <input type="text" id="gas-url" placeholder="https://script.google.com/macros/s//.....exec"
                     onchange="saveGasUrl()">
             </div>
 
@@ -366,7 +365,7 @@
 
     <script>
         let ingredients = JSON.parse(localStorage.getItem('bakery_db_ingredients') || '[]');
-        let gasUrl = localStorage.getItem('bakery_gas_url') || '';
+        let gasUrl = localStorage.getItem('bakery_gas_url') || 'https://script.google.com/macros/s/AKfycbycZJf6ktemWTeptpJAU-jNK8EFKdGbM-uUFMnSMvpOPL2a2ysVwjDeRkX4ixUshauU/exec';
 
         document.addEventListener("DOMContentLoaded", () => {
             document.getElementById('gas-url').value = gasUrl;
