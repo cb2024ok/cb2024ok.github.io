@@ -97,6 +97,7 @@
             margin-bottom: 16px;
             border: 1px solid var(--border);
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            overflow: visible;
         }
 
         .card-title {
@@ -192,6 +193,7 @@
             border-radius: 12px;
             padding: 12px;
             margin-bottom: 10px;
+            position: relative;
         }
 
         .ingredient-item .row-top {
@@ -205,6 +207,59 @@
             justify-content: space-between;
             align-items: center;
             font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        /* 모바일 호환 커스텀 드롭다운 스타일 */
+        .autocomplete-wrapper {
+            position: relative;
+            flex: 1;
+        }
+
+        .autocomplete-list {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: #ffffff;
+            border: 1px solid var(--primary);
+            border-radius: 10px;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 1000;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            display: none;
+            margin-top: 4px;
+            padding: 0;
+            list-style: none;
+        }
+
+        .autocomplete-list.active {
+            display: block;
+        }
+
+        .autocomplete-item {
+            padding: 12px;
+            font-size: 0.9rem;
+            border-bottom: 1px solid var(--border);
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .autocomplete-item:last-child {
+            border-bottom: none;
+        }
+
+        .autocomplete-item:active,
+        .autocomplete-item:hover {
+            background-color: var(--accent-bg);
+            color: var(--primary);
+        }
+
+        .autocomplete-item .price-tag {
+            font-size: 0.8rem;
             color: var(--text-muted);
         }
 
@@ -310,9 +365,6 @@
                 <div id="recipe-ingredients-list"></div>
             </div>
 
-            <!-- Auto-complete Datalist Source -->
-            <datalist id="ingredients-datalist"></datalist>
-
             <div class="summary-box">
                 <div class="summary-grid">
                     <div class="summary-item">
@@ -370,8 +422,14 @@
         document.addEventListener("DOMContentLoaded", () => {
             document.getElementById('gas-url').value = gasUrl;
             renderIngredientsTable();
-            updateDatalist();
             addRecipeRow();
+
+            // 외부 터치 시 자동완성 드롭다운 닫기
+            document.addEventListener('click', (e) => {
+                if (!e.target.closest('.autocomplete-wrapper')) {
+                    document.querySelectorAll('.autocomplete-list').forEach(list => list.classList.remove('active'));
+                }
+            });
         });
 
         function switchTab(tabName) {
@@ -392,7 +450,6 @@
             localStorage.setItem('bakery_gas_url', gasUrl);
         }
 
-        // Sync 300+ ingredients from Google Sheets to Local DB
         function syncDataFromGoogleSheets() {
             if (!gasUrl) {
                 alert('하단 연동 설정에 Google Apps Script Webhook URL을 먼저 입력해 주세요.');
@@ -408,7 +465,6 @@
                         ingredients = data;
                         localStorage.setItem('bakery_db_ingredients', JSON.stringify(ingredients));
                         renderIngredientsTable();
-                        updateDatalist();
                         calculateRecipe();
                         alert(`성공적으로 ${data.length}개의 원재료 데이터를 Local DB로 동기화했습니다!`);
                     } else {
@@ -418,11 +474,6 @@
                 .catch(err => {
                     alert('동기화 실패: ' + err);
                 });
-        }
-
-        function updateDatalist() {
-            const datalist = document.getElementById('ingredients-datalist');
-            datalist.innerHTML = ingredients.map(ing => `<option value="${ing.name}">${ing.pricePerGram.toFixed(2)}원/g</option>`).join('');
         }
 
         function renderIngredientsTable() {
@@ -447,7 +498,6 @@
             ingredients = ingredients.filter(item => item.id !== id);
             localStorage.setItem('bakery_db_ingredients', JSON.stringify(ingredients));
             renderIngredientsTable();
-            updateDatalist();
             calculateRecipe();
         }
 
@@ -458,7 +508,11 @@
             const rowHtml = `
                 <div class="ingredient-item" id="row-${rowId}">
                     <div class="row-top">
-                        <input type="text" class="recipe-ing-input" list="ingredients-datalist" placeholder="재료명 검색 (예: 강력분)" onchange="calculateRecipe()" oninput="calculateRecipe()">
+                        <div class="autocomplete-wrapper">
+                            <input type="text" class="recipe-ing-input" placeholder="재료명 검색 (예: 강력분)" autocomplete="off"
+                                   onfocus="handleSearch(this)" oninput="handleSearch(this)">
+                            <ul class="autocomplete-list"></ul>
+                        </div>
                         <input type="number" class="recipe-ing-usage" placeholder="투입량(g)" style="width: 100px;" oninput="calculateRecipe()">
                         <button class="btn btn-danger" onclick="removeRecipeRow(${rowId})">✕</button>
                     </div>
@@ -470,6 +524,53 @@
             `;
 
             container.insertAdjacentHTML('beforeend', rowHtml);
+        }
+
+        // 모바일 호환 자동완성 검색 함수
+        function handleSearch(inputEl) {
+            const wrapper = inputEl.closest('.autocomplete-wrapper');
+            const listEl = wrapper.querySelector('.autocomplete-list');
+            const query = inputEl.value.trim().toLowerCase();
+
+            // 모든 검색 목록 초기화 및 닫기
+            document.querySelectorAll('.autocomplete-list').forEach(l => {
+                if (l !== listEl) l.classList.remove('active');
+            });
+
+            if (ingredients.length === 0) {
+                listEl.innerHTML = `<li class="autocomplete-item" style="color:#94a3b8;">DB를 먼저 동기화해주세요</li>`;
+                listEl.classList.add('active');
+                return;
+            }
+
+            // 검색어에 맞는 재료 필터링 (최대 15개만 노출)
+            const filtered = query === '' 
+                ? ingredients.slice(0, 10) 
+                : ingredients.filter(item => item.name.toLowerCase().includes(query)).slice(0, 15);
+
+            if (filtered.length === 0) {
+                listEl.innerHTML = `<li class="autocomplete-item" style="color:#94a3b8;">일치하는 재료 없음</li>`;
+            } else {
+                listEl.innerHTML = filtered.map(item => `
+                    <li class="autocomplete-item" onclick="selectIngredient(this, '${item.name.replace(/'/g, "\\'")}')">
+                        <span><strong>${item.name}</strong></span>
+                        <span class="price-tag">${item.pricePerGram.toFixed(2)}원/g</span>
+                    </li>
+                `).join('');
+            }
+
+            listEl.classList.add('active');
+            calculateRecipe();
+        }
+
+        function selectIngredient(itemEl, name) {
+            const wrapper = itemEl.closest('.autocomplete-wrapper');
+            const inputEl = wrapper.querySelector('.recipe-ing-input');
+            const listEl = wrapper.querySelector('.autocomplete-list');
+
+            inputEl.value = name;
+            listEl.classList.remove('active');
+            calculateRecipe();
         }
 
         function removeRecipeRow(rowId) {
@@ -520,7 +621,6 @@
                 return;
             }
 
-            // 현재 배합표에 입력된 재료 목록과 수량을 조합 (예: 라프티스노우 400g, 설탕 100g)
             const detailsList = [];
             document.querySelectorAll('.ingredient-item').forEach(row => {
                 const input = row.querySelector('.recipe-ing-input');
@@ -544,7 +644,7 @@
                 totalCost: document.getElementById('res-total-cost').innerText,
                 unitCost: document.getElementById('res-unit-cost').innerText,
                 costRatio: document.getElementById('res-cost-ratio').innerText,
-                ingredientsDetail: ingredientsDetailText // 상세 배합 내역 텍스트 추가
+                ingredientsDetail: ingredientsDetailText
             };
 
             fetch(gasUrl, {
