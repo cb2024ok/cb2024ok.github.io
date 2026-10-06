@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ko">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -37,7 +38,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
             position: sticky;
             top: 0;
             z-index: 100;
@@ -49,7 +50,7 @@
         }
 
         .badge {
-            background: rgba(255,255,255,0.2);
+            background: rgba(255, 255, 255, 0.2);
             padding: 4px 8px;
             border-radius: 12px;
             font-size: 0.75rem;
@@ -95,7 +96,7 @@
             padding: 20px;
             margin-bottom: 16px;
             border: 1px solid var(--border);
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
         }
 
         .card-title {
@@ -124,7 +125,8 @@
             gap: 10px;
         }
 
-        input, select {
+        input,
+        select {
             width: 100%;
             padding: 12px;
             border: 1px solid var(--border);
@@ -150,11 +152,39 @@
             cursor: pointer;
         }
 
-        .btn-primary { background: var(--primary); color: white; width: 100%; }
-        .btn-outline { background: transparent; border: 1px solid var(--primary); color: var(--primary); }
-        .btn-danger { background: #ef4444; color: white; padding: 8px 12px; font-size: 0.85rem; }
-        .btn-success { background: #10b981; color: white; width: 100%; }
-        .btn-sync { background: #0284c7; color: white; width: 100%; margin-bottom: 12px; font-size: 1rem; padding: 14px; }
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            width: 100%;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--primary);
+            color: var(--primary);
+        }
+
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+            padding: 8px 12px;
+            font-size: 0.85rem;
+        }
+
+        .btn-success {
+            background: #10b981;
+            color: white;
+            width: 100%;
+        }
+
+        .btn-sync {
+            background: #0284c7;
+            color: white;
+            width: 100%;
+            margin-bottom: 12px;
+            font-size: 1rem;
+            padding: 14px;
+        }
 
         .ingredient-item {
             background: var(--bg-main);
@@ -192,18 +222,48 @@
             margin-bottom: 16px;
         }
 
-        .summary-item .label { font-size: 0.8rem; color: #94a3b8; margin-bottom: 4px; }
-        .summary-item .value { font-size: 1.25rem; font-weight: 700; }
-        .summary-item .value.highlight { color: #fbbf24; }
-        .summary-item .value.margin { color: #34d399; }
+        .summary-item .label {
+            font-size: 0.8rem;
+            color: #94a3b8;
+            margin-bottom: 4px;
+        }
 
-        .list-table { width: 100%; border-collapse: collapse; }
-        .list-table th, .list-table td { padding: 10px 6px; text-align: left; border-bottom: 1px solid var(--border); font-size: 0.85rem; }
+        .summary-item .value {
+            font-size: 1.25rem;
+            font-weight: 700;
+        }
 
-        .tab-content { display: none; }
-        .tab-content.active { display: block; }
+        .summary-item .value.highlight {
+            color: #fbbf24;
+        }
+
+        .summary-item .value.margin {
+            color: #34d399;
+        }
+
+        .list-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .list-table th,
+        .list-table td {
+            padding: 10px 6px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.85rem;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
     </style>
 </head>
+
 <body>
 
     <header>
@@ -217,10 +277,10 @@
     </div>
 
     <div class="container">
-        
+
         <!-- 1. 레시피 계산 탭 -->
         <div id="tab-recipe" class="tab-content active">
-            
+
             <button class="btn btn-sync" onclick="syncDataFromGoogleSheets()">🔄 구글 시트 DB 동기화 (300여 개)</button>
 
             <div class="card">
@@ -244,7 +304,8 @@
             <div class="card">
                 <div class="card-title">
                     <span>🍞 배합표 (키워드 자동완성)</span>
-                    <button class="btn btn-outline" style="padding: 6px 12px; font-size: 0.85rem;" onclick="addRecipeRow()">+ 재료 추가</button>
+                    <button class="btn btn-outline" style="padding: 6px 12px; font-size: 0.85rem;"
+                        onclick="addRecipeRow()">+ 재료 추가</button>
                 </div>
                 <div id="recipe-ingredients-list"></div>
             </div>
@@ -277,7 +338,9 @@
 
             <div class="card" style="margin-top: 16px;">
                 <div class="card-title" style="font-size: 0.9rem;">⚙️ Google Apps Script Webhook URL</div>
-                <input type="text" id="gas-url" placeholder="https://script.google.com/macros/s/.../exec" onchange="saveGasUrl()">
+                <input type="text" id="gas-url"
+                    placeholder="https://script.google.com/macros/s/AKfycbycZJf6ktemWTeptpJAU-jNK8EFKdGbM-uUFMnSMvpOPL2a2ysVwjDeRkX4ixUshauU/exec"
+                    onchange="saveGasUrl()">
             </div>
 
         </div>
@@ -463,7 +526,7 @@
             document.querySelectorAll('.ingredient-item').forEach(row => {
                 const input = row.querySelector('.recipe-ing-input');
                 const usageInput = row.querySelector('.recipe-ing-usage');
-                
+
                 if (input && usageInput) {
                     const ingName = input.value.trim();
                     const usage = parseFloat(usageInput.value) || 0;
@@ -491,9 +554,10 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
             })
-            .then(() => alert('☁️ 구글 드라이브(시트)로 레시피 데이터 및 상세 배합표가 전송되었습니다!'))
-            .catch(err => alert('전송 실패: ' + err));
+                .then(() => alert('☁️ 구글 드라이브(시트)로 레시피 데이터 및 상세 배합표가 전송되었습니다!'))
+                .catch(err => alert('전송 실패: ' + err));
         }
     </script>
 </body>
+
 </html>
